@@ -1,0 +1,12 @@
+sources:
+  - name: duck_project
+    database: getduck_project
+    # ADD THIS BLOCK TO DISABLE QUOTING
+    quoting:
+      database: false
+      schema: false
+      identifier: false
+    # END ADDED BLOCK
+    tables:
+      - name: raw_wkly_data
+        identifier: raw_wkly_data  
