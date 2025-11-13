@@ -27,8 +27,10 @@ rejection_flags AS (
         (quantity_num IS NULL OR quantity_num <= 0) AS is_negative_quantity,
         (total_sales_num IS NULL OR total_sales_num <= 0) AS is_negative_sales,
         (rrp_num IS NULL OR rrp_num <= 0) AS is_invalid_rrp,
+         -- Catches the extreme high value for logging **
+        (total_sales_num > 52000) AS is_extreme_sales_outlier,
+        (is_negative_quantity OR is_negative_sales OR is_invalid_rrp OR is_extreme_sales_outlier) AS is_rejected
         
-        (is_negative_quantity OR is_negative_sales OR is_invalid_rrp) AS is_rejected
     FROM source_data
 ),
 
@@ -50,6 +52,7 @@ final_rejected_data AS (
         date_of_sale_casted_for_partition,
         
         multiIf(
+            is_extreme_sales_outlier, 'REJECTED: Extreme Sales Outlier (> 52000)',
             is_invalid_rrp, 'REJECTED: Invalid (NULL/Zero/Negative) RRP',
             is_negative_sales, 'REJECTED: Non-Positive Total Sales Value',
             is_negative_quantity, 'REJECTED: Non-Positive Quantity',
