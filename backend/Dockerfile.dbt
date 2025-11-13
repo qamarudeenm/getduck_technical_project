@@ -1,0 +1,36 @@
+FROM python:3.12-slim
+
+# Set up arguments for user ID and group ID that can be passed during the build
+ARG UID=1000
+ARG GID=1000
+
+# Install git and create the non-root user in a single layer
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends git && \
+    addgroup --gid ${GID} dbt_user && \
+    adduser \
+        --disabled-password \
+        --gecos "" \
+        --home "/home/dbt_user" \
+        --ingroup "dbt_user" \
+        --uid ${UID} \
+        dbt_user && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
+
+# Install python dependencies
+RUN pip install --no-cache-dir \
+    dbt-core==1.10.13 \
+    dbt-clickhouse==1.9.6 \
+    clickhouse-connect==0.9.2
+
+# Set the working directory and give ownership to the dbt_user
+WORKDIR /usr/app/dbt_project
+RUN chown -R dbt_user:dbt_user /usr/app/dbt_project
+
+# Switch to the non-root user for all subsequent commands
+USER dbt_user
+ENV HOME=/home/dbt_user
+
+RUN mkdir /home/dbt_user/.dbt
+CMD ["/bin/bash"]

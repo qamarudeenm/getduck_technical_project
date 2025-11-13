@@ -5,7 +5,7 @@ name: 'get_duck_technical_project'
 version: '1.0.0'
 
 # This setting configures which "profile" dbt uses for this project.
-profile: 'dbt_profile_local'
+profile: 'get_duck_technical_project'
 
 # These configurations specify where dbt should look for different types of files.
 # The `model-paths` config, for example, states that models in this project can be
@@ -50,6 +50,9 @@ models:
     curated:
       +materialized: table
       +schema: curated
+    reports:
+      +materialized: view
+      +schema: reports
     reject_data:
       +materialized: table
       +engine: MergeTree()

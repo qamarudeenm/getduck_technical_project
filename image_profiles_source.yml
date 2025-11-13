@@ -1,0 +1,11 @@
+get_duck_technical_project:
+  target: prod
+  outputs:
+    prod:
+      type: clickhouse
+      host: clickhouse
+      port: 8123
+      user: default
+      password: "default"
+      schema: getduck_project
+      threads: 4

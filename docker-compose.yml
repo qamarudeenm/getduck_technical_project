@@ -1,0 +1,65 @@
+services:
+  clickhouse:
+    image: clickhouse/clickhouse-server:latest
+    container_name: clickhouse-server
+    environment:
+      - CLICKHOUSE_USER=default
+      - CLICKHOUSE_PASSWORD=default
+      # This next line is important for modern ClickHouse images to enable user creation via env vars
+      - CLICKHOUSE_DEFAULT_ACCESS_MANAGEMENT=1
+    volumes:
+      - ./ch_data:/var/lib/clickhouse
+    ports:
+      - "2025:8123"
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:8123/ping"]
+      interval: 5s
+      timeout: 2s
+      retries: 10
+      start_period: 5s # Wait 5s before first check 
+    user: "${UID}:${GID}"
+
+  python_api:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile.api
+    container_name: python-api-service
+    depends_on:
+      clickhouse:
+        condition: service_healthy
+    volumes:
+      - ./backend:/app
+      - ./data:/app/data
+    ports:
+      - "2026:8000"
+    command: >
+      bash -c "python init_db.py && uvicorn main:app --host 0.0.0.0 --port 8000"
+    user: "${UID}:${GID}"
+
+  dbt_cli:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile.dbt
+      args:
+            UID: "${UID}"
+            GID: "${GID}"
+    container_name: dbt-cli
+    depends_on:
+      clickhouse:
+        condition: service_healthy
+      python_api:
+        condition: service_started 
+    volumes:
+      # Mount the local dbt project directory
+      - .:/usr/app/dbt_project
+      # Mount the custom_profiles.yml for dbt connection settings
+      - ./image_profiles_source.yml:/home/dbt_user/.dbt/profiles.yml   
+    working_dir: /usr/app/dbt_project
+    # Keep the container running in the background
+    command: tail -f /dev/null
+    
+    
+### --- INSTRUCTIONS TO RUN ---
+# 1. Initial Build & Start: docker-compose up --build -d
+# 2. Run Transformations: docker-compose exec dbt_cli dbt run --target dev
+# 3. Access API: http://localhost:8000/docs

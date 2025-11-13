@@ -10,12 +10,12 @@ WITH source_data AS (
             SELECT 
                 *,
                 ROW_NUMBER() OVER(PARTITION BY 
-                    TRIM(store_name), Item_code, Item_barcode, TRIM(description), 
+                    TRIM(store_name), item_code, item_barcode, TRIM(description), 
                     TRIM(category), TRIM(department), TRIM(sub_department), 
                     TRIM(section), quantity, total_sales, RRP, supplier, date_of_sale
                 ) AS row_num
             FROM {{ ref('stg_raw_sales_data') }} -- Reference the raw staging layer
-            WHERE length(trim(Item_code)) > 0
+            WHERE length(trim(item_code)) > 0
         )
         WHERE row_num = 1
     )
@@ -37,8 +37,8 @@ rejection_flags AS (
 final_rejected_data AS (
     SELECT
         store_name,
-        Item_code AS item_code,
-        Item_barcode AS item_barcode,
+        item_code,
+        item_barcode,
         description,
         category,
         department,

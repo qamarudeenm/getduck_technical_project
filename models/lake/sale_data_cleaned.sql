@@ -7,11 +7,11 @@ deduplicated_layer AS (
     -- Deduplicating records based on all columns
 SELECT * FROM (
 SELECT *,
-ROW_NUMBER() OVER(PARTITION BY TRIM(store_name), Item_code, Item_barcode, TRIM(description), TRIM(category), TRIM(department), TRIM(sub_department), TRIM(section), 
+ROW_NUMBER() OVER(PARTITION BY TRIM(store_name), item_code, item_barcode, TRIM(description), TRIM(category), TRIM(department), TRIM(sub_department), TRIM(section), 
 quantity, total_sales, RRP, supplier, date_of_sale
  ) row_num
 FROM base
- WHERE length(trim(Item_code)) > 0
+ WHERE length(trim(item_code)) > 0
 
 )
 WHERE row_num = 1
@@ -32,8 +32,8 @@ pre_cleaned_metrics AS (
 final_cleaned_data AS (
 SELECT
         UPPER(TRIM(CAST(store_name AS String))) AS store_name,
-        UPPER(TRIM(CAST(Item_code AS String))) AS item_code,
-        UPPER(TRIM(CAST(Item_barcode AS String))) AS item_barcode,
+        UPPER(TRIM(CAST(item_code AS String))) AS item_code,
+        UPPER(TRIM(CAST(item_barcode AS String))) AS item_barcode,
         UPPER(TRIM(CAST(description AS String))) AS description,
         UPPER(TRIM(CAST(category AS String))) AS category,
         UPPER(TRIM(CAST(department AS String))) AS department,
