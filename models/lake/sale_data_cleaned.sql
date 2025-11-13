@@ -59,7 +59,51 @@ SELECT
             -- while retaining the next highest bulk sales (51,681.00 and below).
             AND total_sales_num <= 52000 
 
+),
+
+sales_with_metrics AS (
+    SELECT
+        *,
+        ROUND(total_sales_num / quantity_num, 2) AS realised_unit_price,
+        ROUND((rrp_num - (total_sales_num / quantity_num)) / rrp_num, 2) AS discount_depth_percent,
+        toStartOfWeek(date_of_sale) AS week_start_date 
+    FROM final_cleaned_data
+),
+
+promo_week_status AS (
+    SELECT 
+        *, 
+        
+        -- Window function to count distinct days where the item was deeply discounted
+        COUNT(DISTINCT 
+            CASE 
+                WHEN discount_depth_percent >= 0.10 THEN date_of_sale 
+                ELSE NULL 
+            END
+        ) OVER (PARTITION BY item_code, week_start_date) AS total_distinct_promo_days
+        
+    FROM sales_with_metrics 
+
+),
+
+final_projection AS (
+    SELECT
+        t.*, 
+        p.total_distinct_promo_days,
+        
+        -- Set the 'is_promotional_period_sku' flag
+        CASE
+            WHEN p.total_distinct_promo_days >= 2 THEN TRUE
+            ELSE FALSE
+        END AS is_promotional_period_sku
+        
+    FROM sales_with_metrics t
+    INNER JOIN promo_week_status p
+        ON t.item_code = p.item_code 
+        AND t.week_start_date = p.week_start_date
 )
+
+
 
 SELECT
     {{ dbt_utils.generate_surrogate_key(['store_name']) }} AS store_key,
@@ -136,6 +180,7 @@ SELECT
     WHEN description LIKE '%SALIT%' THEN 'SALIT' -- Main Oil Competitor
     ELSE UPPER(TRIM(supplier)) -- Use the cleaned Supplier Name
     END AS brand_name,
+    is_promotional_period_sku,
     -- value metrics
     ROUND(quantity_num, 2) AS quantity,
     ROUND(total_sales_num, 2) AS total_sales,
@@ -148,4 +193,4 @@ SELECT
     toStartOfWeek(date_of_sale) AS week_start_date,
     toYYYYMMDD(date_of_sale) AS date_key_int, -- For relational joins
     date_of_sale_casted_for_partition
-FROM final_cleaned_data
+FROM final_projection
