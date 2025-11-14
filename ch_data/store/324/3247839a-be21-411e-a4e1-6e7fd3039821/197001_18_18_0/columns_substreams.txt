@@ -1,0 +1,31 @@
+columns substreams version: 1
+14 columns:
+1 substreams for column `store_name`:
+	store_name
+1 substreams for column `item_code`:
+	item_code
+1 substreams for column `item_barcode`:
+	item_barcode
+1 substreams for column `description`:
+	description
+1 substreams for column `category`:
+	category
+1 substreams for column `department`:
+	department
+1 substreams for column `sub_department`:
+	sub_department
+1 substreams for column `section`:
+	section
+1 substreams for column `quantity`:
+	quantity
+1 substreams for column `total_sales`:
+	total_sales
+1 substreams for column `RRP`:
+	RRP
+1 substreams for column `supplier`:
+	supplier
+1 substreams for column `date_of_sale`:
+	date_of_sale
+2 substreams for column `date_of_sale_casted_for_partition`:
+	date_of_sale_casted_for_partition.sparse.idx
+	date_of_sale_casted_for_partition

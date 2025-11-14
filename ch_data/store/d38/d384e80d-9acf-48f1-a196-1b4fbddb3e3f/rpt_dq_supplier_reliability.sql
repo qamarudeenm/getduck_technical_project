@@ -1,4 +1,4 @@
-ATTACH VIEW _ UUID '44cf1820-892b-49dc-ab2c-115a706bea15'
+ATTACH VIEW _ UUID '67ed5b84-f64e-4b9f-a57a-34de17c16f8b'
 (
     `rs.supplier_key` String,
     `supplier_name` String,

@@ -1,4 +1,4 @@
-ATTACH TABLE _ UUID 'aaf1b69e-bf1d-4657-932a-16dd0d663f1e'
+ATTACH TABLE _ UUID 'dfd89381-05fd-435b-b57b-d3e4567e4684'
 (
     `supplier_key` String,
     `supplier_name` String,

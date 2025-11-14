@@ -1,0 +1,22 @@
+columns substreams version: 1
+10 columns:
+1 substreams for column `item_key`:
+	item_key
+1 substreams for column `item_code`:
+	item_code
+1 substreams for column `item_barcode`:
+	item_barcode
+1 substreams for column `item_description`:
+	item_description
+1 substreams for column `category`:
+	category
+1 substreams for column `department`:
+	department
+1 substreams for column `sub_department`:
+	sub_department
+1 substreams for column `section`:
+	section
+1 substreams for column `brand_name`:
+	brand_name
+1 substreams for column `stores_carrying_item`:
+	stores_carrying_item

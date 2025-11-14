@@ -92,13 +92,15 @@ def get_supplier_reliability():
       working with suppliers to improve data quality.
     """
     query = f"""
-                SELECT
-                    supplier_name,
-                    total_rejected_records,
-                    common_rejection_reasons,
-                    data_acceptance_rate
-                FROM rpt_dq_supplier_reliability
-                ORDER BY total_rejected_records DESC
+                SELECT rps.supplier_name,
+                    SUM(total_rejected_records) AS supplier_total_rejected_records,
+                    rdp.rejection_reason
+                    FROM reports.rpt_dq_supplier_reliability rps
+                    left join rejected.rejected_data_process rdp 
+                    on rps.supplier_name = rdp.supplier 
+                WHERE total_rejected_records > 0
+                GROUP BY rps.supplier_name, rdp.rejection_reason
+                ORDER BY supplier_total_rejected_records DESC
             """
     df = query_ch_df(query)
     return df.to_dict('records')

@@ -1,4 +1,4 @@
-ATTACH TABLE _ UUID '37c6552f-086b-4fba-ae99-07f5775e72b2'
+ATTACH TABLE _ UUID '9e18025e-d89e-464e-9b5f-1a611f1f2efb'
 (
     `date_key_int` UInt32,
     `date_actual` Date,

@@ -90,5 +90,5 @@ A simple, fast API exposes the clean data marts for production use.
 | `/data-health/overall` | `rpt_data_volume_acceptance` | Returns the overall data acceptance rate and rejection details. |
 | `/promotions/uplift` | `rpt_promo_performance` | Returns data for the Promo Uplift Ranking chart (Top 10). |
 | `/pricing-index/positioning`| `rpt_pricing_index_detail` | Returns data for the Pricing Index (Bidco only). |
-
+| `/supplier/reliability` |  `rpt_dq_supplier_reliability and rejected_data_process` | Provide a detailed breakdown of data quality issues per supplier
 This stack provides the agility required to meet commercial demands while maintaining the integrity required for enterprise-level data operations.
