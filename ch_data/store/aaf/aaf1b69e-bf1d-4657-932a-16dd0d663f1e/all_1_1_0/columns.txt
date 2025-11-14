@@ -1,0 +1,6 @@
+columns format version: 1
+4 columns:
+`supplier_key` String
+`supplier_name` String
+`is_bidco_supplier` Bool
+`total_distinct_skus_supplied` UInt64

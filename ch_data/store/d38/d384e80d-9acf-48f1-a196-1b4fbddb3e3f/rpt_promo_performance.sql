@@ -1,11 +1,13 @@
-ATTACH VIEW _ UUID '66aaceaa-158e-41a4-9083-6cbefa105232'
+ATTACH VIEW _ UUID 'ae460b0e-25a1-4fb3-a23b-d9c1be0fbda8'
 (
     `item_key` String,
     `brand_name` String,
     `sub_department` String,
     `total_units_sold` Nullable(Float64),
     `promo_units_sold` Nullable(Float64),
-    `avg_promo_discount_depth` Nullable(Float64),
+    `promo_sales_volume` Nullable(Float64),
+    `baseline_sales_volume` Nullable(Float64),
+    `round(avg_promo_discount_depth, 2)` Nullable(Float64),
     `promo_avg_unit_price` Nullable(Float64),
     `non_promo_avg_unit_price` Nullable(Float64),
     `promo_uplift_pct` Nullable(Float64),
@@ -38,7 +40,9 @@ SELECT
     s.sub_department,
     s.total_units_sold,
     s.promo_units_sold,
-    s.avg_promo_discount_depth,
+    s.promo_units_sold * s.promo_avg_unit_price AS promo_sales_volume,
+    b.baseline_daily_units_avg AS baseline_sales_volume,
+    round(s.avg_promo_discount_depth, 2),
     s.promo_avg_unit_price,
     s.non_promo_avg_unit_price,
     round(((CAST(s.promo_units_sold, 'Float64') / 7.) - b.baseline_daily_units_avg) / b.baseline_daily_units_avg, 4) AS promo_uplift_pct,

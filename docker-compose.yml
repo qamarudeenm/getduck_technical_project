@@ -57,9 +57,3 @@ services:
     working_dir: /usr/app/dbt_project
     # Keep the container running in the background
     command: tail -f /dev/null
-    
-    
-### --- INSTRUCTIONS TO RUN ---
-# 1. Initial Build & Start: docker-compose up --build -d
-# 2. Run Transformations: docker-compose exec dbt_cli dbt run --target dev
-# 3. Access API: http://localhost:8000/docs

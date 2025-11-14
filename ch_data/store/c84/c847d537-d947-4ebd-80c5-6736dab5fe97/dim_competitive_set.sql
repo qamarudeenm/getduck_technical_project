@@ -1,4 +1,4 @@
-ATTACH TABLE _ UUID '736360fe-dc3a-49ea-a409-51f5050fc25f'
+ATTACH TABLE _ UUID '25a3ccbd-42bb-4b4c-a0b8-dc31053574f4'
 (
     `competitive_set_key` String,
     `sub_department` String,

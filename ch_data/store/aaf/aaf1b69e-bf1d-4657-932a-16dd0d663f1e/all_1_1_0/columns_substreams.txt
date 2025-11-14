@@ -1,0 +1,11 @@
+columns substreams version: 1
+4 columns:
+1 substreams for column `supplier_key`:
+	supplier_key
+1 substreams for column `supplier_name`:
+	supplier_name
+2 substreams for column `is_bidco_supplier`:
+	is_bidco_supplier.sparse.idx
+	is_bidco_supplier
+1 substreams for column `total_distinct_skus_supplied`:
+	total_distinct_skus_supplied

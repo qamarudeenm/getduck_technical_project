@@ -1,0 +1,7 @@
+columns format version: 1
+5 columns:
+`competitive_set_key` String
+`sub_department` String
+`section` String
+`store_name` String
+`total_suppliers_in_set` UInt64

@@ -29,7 +29,9 @@ SELECT
     s.sub_department,
     s.total_units_sold,
     s.promo_units_sold,
-    s.avg_promo_discount_depth,
+    (s.promo_units_sold * s.promo_avg_unit_price) AS promo_sales_volume,
+    b.baseline_daily_units_avg AS baseline_sales_volume,
+    ROUND(s.avg_promo_discount_depth, 2),
     s.promo_avg_unit_price,
     s.non_promo_avg_unit_price,
     

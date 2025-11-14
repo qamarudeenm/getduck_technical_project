@@ -44,16 +44,20 @@ def get_overall_health():
 @app.get("/promotions/uplift", response_model=List[Dict])
 def get_promo_uplift_ranking():
     """Returns data for the Promo Uplift Ranking chart (Top 10)."""
-    query = f"""SELECT 
-                        d_i.brand_name, 
-                        d_i.sub_department, 
-                        p.promo_uplift_pct, 
-                        p.promo_coverage_pct,
-                        p.avg_promo_discount_depth
-                    FROM reports.rpt_promo_performance p
-                    INNER JOIN curated.dim_item d_i ON p.item_key = d_i.item_key
-                    ORDER BY p.promo_uplift_pct DESC
-                    LIMIT 10
+    query = f"""
+                SELECT
+                    d_i.brand_name,
+                    d_i.sub_department,
+                    max(p.promo_uplift_pct) as promo_uplift_pct,
+                    argMax(p.promo_coverage_pct, p.promo_uplift_pct) as promo_coverage_pct
+                FROM reports.rpt_promo_performance p
+                INNER JOIN curated.dim_item d_i ON p.item_key = d_i.item_key
+                GROUP BY
+                    d_i.brand_name,
+                    d_i.sub_department
+                ORDER BY
+                    promo_uplift_pct DESC
+                LIMIT 10
     """
     df = query_ch_df(query)
     return df.to_dict('records')
@@ -71,10 +75,63 @@ def get_pricing_positioning():
                     r.peer_avg_unit_price,
                     r.peer_price_index,
                     r.price_positioning
-                FROM reports.rpt_pricing_index_detail r
+                FROM rpt_pricing_index_detail r
                 WHERE r.is_bidco_supplier = True
                 ORDER BY r.peer_price_index ASC
             """
+    df = query_ch_df(query)
+    return df.to_dict('records')
+
+@app.get("/supplier/reliability", response_model=List[Dict])
+def get_supplier_reliability():
+    """
+    Endpoint: GET /supplier/reliability
+    Underlying Report: rpt_dq_supplier_reliability
+    Description: This endpoint would provide a detailed breakdown of data quality issues per supplier. It could list suppliers with the highest number of
+      rejected records, the most common rejection reasons, and their overall data acceptance rate. This helps in identifying unreliable data sources and
+      working with suppliers to improve data quality.
+    """
+    query = f"""
+                SELECT
+                    supplier_name,
+                    total_rejected_records,
+                    common_rejection_reasons,
+                    data_acceptance_rate
+                FROM rpt_dq_supplier_reliability
+                ORDER BY total_rejected_records DESC
+            """
+    df = query_ch_df(query)
+    return df.to_dict('records')
+
+
+@app.get("/promotions/performance/details", response_model=List[Dict])
+def get_promo_performance_details(brand_name: str = None, sub_department: str = None):
+    """
+    Endpoint: GET /promotions/performance/details
+    Underlying Report: rpt_promo_performance
+    Description: This could provide a more granular view than the current /promotions/uplift endpoint. It could accept query parameters to filter by
+      brand_name or sub_department and return detailed performance metrics like promo_sales_volume, baseline_sales_volume, and avg_promo_discount_depth for
+      specific items, allowing for a deeper dive into what drives a promotion's success or failure.
+    """
+    query = f"""
+                SELECT
+                    p.brand_name,
+                    p.sub_department,
+                    p.item_key,
+                    p.promo_sales_volume,
+                    p.baseline_sales_volume,
+                    p.avg_promo_discount_depth
+                FROM rpt_promo_performance p
+                INNER JOIN curated.dim_item d_i ON p.item_key = d_i.item_key
+                WHERE 1=1
+            """
+    if brand_name:
+        query += f" AND p.brand_name = '{brand_name}'"
+    if sub_department:
+        query += f" AND p.sub_department = '{sub_department}'"
+    
+    query += " ORDER BY p.promo_sales_volume DESC"
+
     df = query_ch_df(query)
     return df.to_dict('records')
 
