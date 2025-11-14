@@ -1,9 +1,0 @@
-columns substreams version: 1
-3 columns:
-1 substreams for column `item_key`:
-	item_key
-2 substreams for column `baseline_daily_units_avg`:
-	baseline_daily_units_avg.null
-	baseline_daily_units_avg
-1 substreams for column `total_baseline_days`:
-	total_baseline_days

@@ -92,3 +92,11 @@ A simple, fast API exposes the clean data marts for production use.
 | `/pricing-index/positioning`| `rpt_pricing_index_detail` | Returns data for the Pricing Index (Bidco only). |
 | `/supplier/reliability` |  `rpt_dq_supplier_reliability and rejected_data_process` | Provide a detailed breakdown of data quality issues per supplier
 This stack provides the agility required to meet commercial demands while maintaining the integrity required for enterprise-level data operations.
+
+### Endpoint API Screenshot
+![Endpoint 1](assets/1.png)
+![Endpoint 2](assets/2.png)
+![Endpoint 3](assets/3.png)
+![Endpoint 4](assets/4.png)
+![Endpoint 5](assets/5.png)
+![Endpoint 6](assets/6.png)
