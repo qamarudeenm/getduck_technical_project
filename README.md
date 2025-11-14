@@ -44,7 +44,11 @@ The pipeline follows an ELT (Extract, Load, Transform) approach:
 | **Transformation** | dbt (Data Build Tool) | Provides version control, lineage, testing, and ensures repeatable, reliable transformations (ELT/SQL-first approach). |
 | **Data Warehouse (OLAP)**| ClickHouse | Optimized for high-speed analytical queries (aggregations, window functions) required for the Pricing Index. Highly efficient on columnar data. |
 | **API / Presentation** | FastAPI | FastAPI provides a lean, performant API endpoint for reliable data delivery. |
-| **Modeling** | Star Schema | Separates facts (sales events) from dimensions (products, stores, suppliers), maximizing query performance and flexibility for BI users. |
+| **Modeling** | Star Schema | Separates facts (sales events) from dimensions (products, stores, suppliers), maximizing query performance and flexibility 
+for BI users. |
+
+### Data Pipeline Architecture Diagram
+![Data Pipeline Architecture](assets/getduct_project.jpg)
 
 
 ## ✅ Data Quality & Governance

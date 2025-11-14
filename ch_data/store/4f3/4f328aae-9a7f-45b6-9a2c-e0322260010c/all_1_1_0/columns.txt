@@ -1,5 +1,0 @@
-columns format version: 1
-3 columns:
-`item_key` String
-`baseline_daily_units_avg` Nullable(Float64)
-`total_baseline_days` UInt64

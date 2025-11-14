@@ -1,1 +1,0 @@
-{"columns":[{"kind":"Sparse","name":"is_bidco_supplier","num_defaults":189,"num_rows":190},{"kind":"Default","name":"supplier_key","num_defaults":0,"num_rows":190},{"kind":"Default","name":"supplier_name","num_defaults":1,"num_rows":190},{"kind":"Default","name":"total_distinct_skus_supplied","num_defaults":0,"num_rows":190}],"version":0}
