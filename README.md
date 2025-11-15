@@ -64,7 +64,6 @@ The pipeline implements a "Flag and Filter" strategy, ensuring immutability in t
 
 
 ## 💡 Commercial Insights & Actions for Bidco
-The core mission is to inform the Brand Manager's decisions on Promotions and Pricing.
 
 #### A. Promotions & Uplift (Informs: Marketing Budget Allocation)
 | KPI & Finding | Implication | Actionable Recommendation |
@@ -100,3 +99,6 @@ This stack provides the agility required to meet commercial demands while mainta
 ![Endpoint 4](assets/4.png)
 ![Endpoint 5](assets/5.png)
 ![Endpoint 6](assets/6.png)
+
+## 📊 Entity-Relationship (ER) Diagram
+![ER Diagram](assets/er)
