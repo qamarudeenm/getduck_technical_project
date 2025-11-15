@@ -17,7 +17,7 @@ The solution uses a ClickHouse-backed Data Lakehouse orchestrated by dbt (Data B
     ```
 2.  **Run dbt Transformations:**
     ```bash
-    docker-compose exec dbt_cli dbt run --target dev
+    docker-compose exec dbt_cli dbt run --target prod
     ```
 3.  **Access the API:**
     The API documentation is available at [http://localhost:2026/docs](http://localhost:2026/docs).
