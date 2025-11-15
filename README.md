@@ -101,4 +101,4 @@ This stack provides the agility required to meet commercial demands while mainta
 ![Endpoint 6](assets/6.png)
 
 ## 📊 Entity-Relationship (ER) Diagram
-![ER Diagram](assets/er)
+![ER Diagram](assets/er.png)
