@@ -1,4 +1,4 @@
-ATTACH TABLE _ UUID '74fb99a2-9618-4d07-a37b-9106be2418c7'
+ATTACH TABLE _ UUID '9d01be2e-e6ec-46d1-99fa-6d5d19efe3e9'
 (
     `store_key` String,
     `store_name` String,

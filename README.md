@@ -5,6 +5,32 @@ This repository contains a modern, production-grade data pipeline designed to tr
 
 The solution uses a ClickHouse-backed Data Lakehouse orchestrated by dbt (Data Build Tool), with final results delivered via a simple FastAPI service for consumption by BI tools, dashboards, and other applications.
 
+> **Note**: Metrics updated on November 23, 2025 after fixing dimension table duplicates that caused metric inflation in earlier versions.
+
+### 📚 Documentation
+- **[DBT_SQL_DOCUMENTATION.md](./DBT_SQL_DOCUMENTATION.md)** - Comprehensive guide to all SQL transformations (12 sections, 2,000+ lines)
+  - Architecture overview and medallion pattern explanation
+  - Detailed analysis of all 14 models (raw → curated → reports)
+  - Critical business decisions and data quality measures
+  - Typical analysis workflows and best practices
+  
+- **[MODEL_EXECUTION_REPORT.md](./MODEL_EXECUTION_REPORT.md)** - Latest model run results (23 November 2025)
+  - All 14 models executed successfully in 1.79 seconds
+  - Data quality metrics (99.88% acceptance rate)
+  - Sample outputs from each layer
+  - Performance analysis and recommendations
+
+- **[EXECUTIVE_PRESENTATION.md](./EXECUTIVE_PRESENTATION.md)** - Executive stakeholder presentation
+  - Key discoveries and commercial insights
+  - Top promotional performers with verified metrics
+  - Competitive pricing intelligence
+  - Actionable recommendations for Bidco
+
+- **[CHANGELOG_v2.0.0.md](./CHANGELOG_v2.0.0.md)** - Version 2.0.0 release notes
+  - Critical bug fix: dimension table duplicates
+  - Metric corrections and verification
+  - dbt test suite implementation
+
 ## 💻 How to Run
 
 ### Prerequisites
@@ -19,7 +45,11 @@ The solution uses a ClickHouse-backed Data Lakehouse orchestrated by dbt (Data B
     ```bash
     docker-compose exec dbt_cli dbt run --target prod
     ```
-3.  **Access the API:**
+3.  **Run dbt Tests** (recommended):
+    ```bash
+    docker-compose exec dbt_cli dbt test
+    ```
+4.  **Access the API:**
     The API documentation is available at [http://localhost:2026/docs](http://localhost:2026/docs).
 
 ### Services
@@ -44,8 +74,7 @@ The pipeline follows an ELT (Extract, Load, Transform) approach:
 | **Transformation** | dbt (Data Build Tool) | Provides version control, lineage, testing, and ensures repeatable, reliable transformations (ELT/SQL-first approach). |
 | **Data Warehouse (OLAP)**| ClickHouse | Optimized for high-speed analytical queries (aggregations, window functions) required for the Pricing Index. Highly efficient on columnar data. |
 | **API / Presentation** | FastAPI | FastAPI provides a lean, performant API endpoint for reliable data delivery. |
-| **Modeling** | Star Schema | Separates facts (sales events) from dimensions (products, stores, suppliers), maximizing query performance and flexibility 
-for BI users. |
+| **Modeling** | Star Schema | Separates facts (sales events) from dimensions (products, stores, suppliers), maximizing query performance and flexibility for BI users. |
 
 ### Data Pipeline Architecture Diagram
 ![Data Pipeline Architecture](assets/getduct_project.jpg)
@@ -60,24 +89,55 @@ The pipeline implements a "Flag and Filter" strategy, ensuring immutability in t
 | **Negative/Null Filter** | Transactions with non-positive `Quantity`, `Total Sales`, or `RRP` are removed from the clean pipeline. |
 | **Extreme Outlier Removal** | Transactions where `Total Sales` exceeded $52,000 (a commercially indefensible level for a single line-item in this FMCG dataset) were removed to prevent skewing aggregates. |
 | **`rpt_data_volume_acceptance`** | **Overall Acceptance Rate: 99.88%**. The pipeline confirms the underlying raw data quality is high. |
-| **`rpt_dq_supplier_reliability`** | Identified specific, low-volume suppliers whose data contributes most to rejection (e.g., BEECARE APIARIES). |
+| **`rpt_dq_supplier_reliability`** | Identified specific, low-volume suppliers whose data contributes most to rejection (e.g., BEECARE APIARIES with 100% rejection rate on 1 record). |
+| **Dimension Table Uniqueness** | dbt tests ensure one row per dimension key, preventing cartesian product inflation (21 tests, 100% pass rate). |
 
 
 ## 💡 Commercial Insights & Actions for Bidco
 
 #### A. Promotions & Uplift (Informs: Marketing Budget Allocation)
-| KPI & Finding | Implication | Actionable Recommendation |
-| :--- | :--- | :--- |
-| **RIBENA (FD-SBF) Achieved +44.82% Uplift** | Ribena is a highly price-elastic brand. The deep discount strategy drives massive volume increases. | **Maximize Campaign Scale**: Prioritize Ribena for mass-market campaigns (high ROI on volume increase). Ensure inventory can support 45%+ surge. |
-| **GOLDEN FRY Achieved +23.95% Uplift** | The primary product line responds well to the 15.65% average discount depth. | **Optimize Bulk**: Focus promotions on wholesale-relevant sizes (5L/10L) to increase total turnover during promo periods. |
+
+**Top Promotional Performers** (by Uplift %):
+
+| Rank | Brand | Category | Uplift % | Coverage % | Implication | Actionable Recommendation |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| 🥇 1 | **PREMIER FOODS** | Sauces | **+1,307%** | **67%** | Exceptional promotional responsiveness - 14x baseline sales during promo period. | **Replicate Strategy**: Study this promotional approach for application to other categories. Highest coverage in top 5. |
+| 🥈 2 | **CANON CHEMICALS** | Dishwashing | **+586%** | **60%** | High-value items (343.97 KES avg) show strong promotional elasticity. | **Premium Focus**: Prioritize promotions for premium-priced categories with high margins. |
+| 🥉 3 | **ZENKO KENYA** | Wipes | **+500%** | **32%** | Strong uplift but low coverage - significant expansion opportunity. | **Expand Coverage**: Test promotional rollout to remaining 68% of stores. |
+| 4 | **CADBURY** | Chocolate | **+457%** | **50%** | Chocolate category responds well to promotions with balanced coverage. | **Maintain Momentum**: Continue promotional investment in chocolate category. |
+| 5 | **HASBAH KENYA** | Energy Drinks | **+350%** | **48%** | Energy drinks show 4.5x baseline with moderate coverage. | **Expand Rollout**: Increase promotional budget; test wider store penetration. |
+
+**Key Insights**:
+- **Sauces and dishwashing** show highest promotional responsiveness (1,307% and 586% uplift)
+- **Coverage gaps exist**: Top performers only reach 32-67% of stores
+- **Opportunity**: Standardize promotional calendar across all store formats to maximize reach
 
 #### B. Competitive Pricing Index (Informs: Margin Protection)
 The Pricing Index measures `(Own Brand Price / Peer Average Price)`.
 
-| Bidco Brand | Price Positioning (PPI) | Finding | Actionable Recommendation |
-| :--- | :--- | :--- | :--- |
-| **GOLD BAND (Margarine)** | 0.803 (20% Below Peer Avg) | **Leaving Margin on the Table**: The brand is significantly underselling competitors in the same competitive set. | **Test Price Increase**: Pilot a 5-10% price increase (moving PPI to 0.84 - 0.88). If volume holds, profit dramatically increases. |
-| **ELIANTO (Corn Oil)** | 1.042 (4.2% Above Peer Avg) | **Perfect Positioning**: Successfully commands a small premium in the Corn Oil category. | **Maintain Status Quo**: This strategy is balanced; no immediate pricing action is necessary. |
+**Bidco Brands - Price Positioning**:
+
+| Bidco Brand | Product Format | Price Index (PPI) | Finding | Actionable Recommendation |
+| :--- | :--- | :--- | :--- | :--- |
+| **GOLD BAND** | Fats Spread | 0.682 (32% Below Peer) | **Aggressive Discount**: Significantly underselling competitors. May be leaving margin on table. | **Test Price Increase**: Pilot a 10-15% price increase (moving PPI to 0.75-0.79). Monitor volume impact. |
+| **GOLD BAND** | Margarines | 0.808 (19% Below Peer) | **Value Positioning**: Moderate discount vs competitors. | **Maintain or Test**: Consider small price increase to 0.85 if volume is stable. |
+| **RIBENA** | Cordials/Tetra | 1.57 (57% Above Peer) | **Premium Positioning**: Successfully commands premium pricing in select stores. | **Segment Strategy**: Maintain premium in high-income areas; consider graduated pricing by store format. |
+
+**Pricing Insights**:
+- **Dual strategy**: Bidco operates both DISCOUNT (Gold Band) and PREMIUM (Ribena) positioning
+- **Store variation**: RIBENA pricing varies significantly by location (0.52x to 2.41x peer average)
+- **Margin opportunity**: GOLD BAND Fats Spread at 0.682x may be too aggressive (32% discount)
+
+#### C. Data Quality Insights (Informs: Operational Excellence)
+
+| Metric | Value | Insight |
+| :--- | :--- | :--- |
+| **Data Acceptance Rate** | **99.88%** | Excellent overall data quality |
+| **Total Rejected Records** | 38 out of 30,691 | Only 0.12% rejection rate |
+| **Primary Issue** | Invalid RRP (84% of rejections) | Target RRP validation at source system |
+| **Supplier Reliability** | 0 flagged as unreliable | No systematic quality problems |
+
+**Recommendation**: Implement RRP validation rules at data entry to reduce the 32 records rejected for invalid RRP values.
 
 
 ## 📦 API Endpoints & Presentation
@@ -89,7 +149,8 @@ A simple, fast API exposes the clean data marts for production use.
 | `/data-health/overall` | `rpt_data_volume_acceptance` | Returns the overall data acceptance rate and rejection details. |
 | `/promotions/uplift` | `rpt_promo_performance` | Returns data for the Promo Uplift Ranking chart (Top 10). |
 | `/pricing-index/positioning`| `rpt_pricing_index_detail` | Returns data for the Pricing Index (Bidco only). |
-| `/supplier/reliability` |  `rpt_dq_supplier_reliability and rejected_data_process` | Provide a detailed breakdown of data quality issues per supplier
+| `/supplier/reliability` |  `rpt_dq_supplier_reliability` and `rejected_data_process` | Provide a detailed breakdown of data quality issues per supplier. |
+
 This stack provides the agility required to meet commercial demands while maintaining the integrity required for enterprise-level data operations.
 
 ### Endpoint API Screenshot
@@ -100,5 +161,44 @@ This stack provides the agility required to meet commercial demands while mainta
 ![Endpoint 5](assets/5.png)
 ![Endpoint 6](assets/6.png)
 
+## 🧪 Testing & Quality Assurance
+
+### dbt Tests Implemented (v2.0.0)
+
+**21 comprehensive tests** ensure data quality and prevent future issues:
+
+- **Dimension Tables**: Uniqueness and not-null constraints on all primary keys
+- **Fact Table**: Data quality checks (quantity > 0, reasonable row counts)
+- **Intermediate Tables**: Baseline calculation integrity
+
+**Test Results**: ✅ **21/21 PASS** (100% pass rate)
+
+Run tests:
+```bash
+docker-compose exec dbt_cli dbt test
+```
+
 ## 📊 Entity-Relationship (ER) Diagram
 ![ER Diagram](assets/er.png)
+
+---
+
+## 📝 Version History
+
+### v2.0.0 (November 23, 2025)
+- **Critical Fix**: Removed dimension table duplicates causing 20-26x metric inflation
+- **Tests Added**: 21 dbt tests to prevent future data quality issues
+- **Metrics Corrected**: All promotional and pricing metrics verified accurate
+- **Documentation**: Updated all reports with corrected values
+
+### v1.0.0 (November 17, 2025)
+- Initial release with 14 dbt models
+- FastAPI endpoints for data consumption
+- Comprehensive documentation
+
+---
+
+**Project Status**: ✅ Production Ready  
+**Last Updated**: November 23, 2025  
+**Data Quality**: 99.88% acceptance rate  
+**Test Coverage**: 21/21 tests passing

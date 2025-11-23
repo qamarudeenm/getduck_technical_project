@@ -1,4 +1,4 @@
-ATTACH TABLE _ UUID '9b253044-1fd8-4522-b166-551e5cba4870'
+ATTACH TABLE _ UUID 'c1cb1113-a28a-47a3-bf93-e12dfdd5d04e'
 (
     `item_key` String,
     `baseline_daily_units_avg` Nullable(Float64),

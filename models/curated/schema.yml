@@ -1,0 +1,100 @@
+version: 2
+
+models:
+  - name: dim_item
+    description: "Item dimension table - one row per unique item (item_key)"
+    columns:
+      - name: item_key
+        description: "Unique identifier for each item (SHA1 hash of item_code)"
+        tests:
+          - unique
+          - not_null
+    tests:
+      - dbt_utils.expression_is_true:
+          expression: "item_key IS NOT NULL"
+          config:
+            severity: error
+      # Test to ensure no duplicate item_keys (prevents cartesian product bug)
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - item_key
+          config:
+            severity: error
+            error_if: ">0"
+
+  - name: dim_store
+    description: "Store dimension table - one row per unique store"
+    columns:
+      - name: store_key
+        description: "Unique identifier for each store"
+        tests:
+          - unique
+          - not_null
+
+  - name: dim_supplier
+    description: "Supplier dimension table - one row per unique supplier"
+    columns:
+      - name: supplier_key
+        description: "Unique identifier for each supplier"
+        tests:
+          - unique
+          - not_null
+
+  - name: dim_date
+    description: "Date dimension table - one row per unique date"
+    columns:
+      - name: date_key_int
+        description: "Unique date identifier in YYYYMMDD format"
+        tests:
+          - unique
+          - not_null
+
+  - name: dim_competitive_set
+    description: "Competitive set dimension - one row per unique section/store combination"
+    columns:
+      - name: competitive_set_key
+        description: "Unique identifier for each competitive set"
+        tests:
+          - unique
+          - not_null
+
+  - name: fact_sales_transaction
+    description: "Fact table containing all sales transactions"
+    columns:
+      - name: sale_surrogate_key
+        description: "Unique identifier for each transaction"
+        tests:
+          - unique
+          - not_null
+      - name: quantity
+        description: "Quantity sold"
+        tests:
+          - not_null
+      - name: total_sales
+        description: "Total sales amount"
+        tests:
+          - not_null
+    tests:
+      # Ensure fact table has reasonable row count
+      - dbt_utils.expression_is_true:
+          expression: "(SELECT COUNT(*) FROM {{ ref('fact_sales_transaction') }}) > 1000"
+          config:
+            severity: warn
+      # Ensure no negative quantities
+      - dbt_utils.expression_is_true:
+          expression: "quantity > 0"
+          config:
+            severity: error
+
+  - name: int_promo_baseline
+    description: "Intermediate table with baseline sales for promotional analysis"
+    columns:
+      - name: item_key
+        description: "Item identifier"
+        tests:
+          - unique
+          - not_null
+      - name: baseline_daily_units_avg
+        description: "Average daily units sold during non-promotional periods"
+        tests:
+          - not_null

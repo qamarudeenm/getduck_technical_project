@@ -17,6 +17,8 @@ services:
       timeout: 2s
       retries: 10
       start_period: 5s # Wait 5s before first check 
+    stop_grace_period: 30s
+    stop_signal: SIGTERM
     user: "${UID}:${GID}"
 
   python_api:
@@ -34,6 +36,8 @@ services:
       - "2026:8000"
     command: >
       bash -c "python init_db.py && uvicorn main:app --host 0.0.0.0 --port 8000"
+    stop_grace_period: 30s
+    stop_signal: SIGTERM
     user: "${UID}:${GID}"
 
   dbt_cli:
@@ -57,3 +61,5 @@ services:
     working_dir: /usr/app/dbt_project
     # Keep the container running in the background
     command: tail -f /dev/null
+    stop_grace_period: 10s
+    stop_signal: SIGTERM

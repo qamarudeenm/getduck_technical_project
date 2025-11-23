@@ -3,4 +3,12 @@ target/
 dbt_packages/
 logs/
 dbt_internal_packages/
-README.md
+# README.md
+CHANGELOG_*
+DBT_SQL*
+DEDUP*
+EXECUTIVE*
+DOCKER*
+FIX*
+MODEL_*
+ch_data/*

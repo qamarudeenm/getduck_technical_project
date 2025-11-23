@@ -1,4 +1,4 @@
-ATTACH VIEW _ UUID 'b85ac125-4563-4f23-9021-c898005b8891'
+ATTACH VIEW _ UUID '63c721d8-b2c0-4e07-a5fd-b00784b754a2'
 (
     `item_key` String,
     `brand_name` String,

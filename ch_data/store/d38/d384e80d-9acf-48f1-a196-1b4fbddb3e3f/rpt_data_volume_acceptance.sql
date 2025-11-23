@@ -1,4 +1,4 @@
-ATTACH VIEW _ UUID 'f0090e15-15f3-4453-9e58-7de27cc8d04b'
+ATTACH VIEW _ UUID '828c9cd0-829d-4a18-8515-628986b40d0c'
 (
     `total_accepted_records` UInt64,
     `total_rejected_records` UInt64,

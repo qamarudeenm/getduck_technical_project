@@ -13,7 +13,8 @@ ATTACH TABLE _ UUID '3247839a-be21-411e-a4e1-6e7fd3039821'
     `RRP` String,
     `supplier` String,
     `date_of_sale` String,
-    `date_of_sale_casted_for_partition` DateTime
+    `date_of_sale_casted_for_partition` DateTime,
+    `row_hash` String
 )
 ENGINE = MergeTree
 PARTITION BY toYYYYMM(date_of_sale_casted_for_partition)

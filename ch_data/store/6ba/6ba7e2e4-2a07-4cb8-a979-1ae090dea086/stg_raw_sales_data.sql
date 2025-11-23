@@ -1,4 +1,4 @@
-ATTACH TABLE _ UUID '6def4587-c991-43ac-918a-9fc19a55c5d6'
+ATTACH TABLE _ UUID '1ce24c41-fa84-43b4-87a2-f0eb0b93b7c4'
 (
     `store_name` String,
     `item_code` String,
@@ -13,7 +13,6 @@ ATTACH TABLE _ UUID '6def4587-c991-43ac-918a-9fc19a55c5d6'
     `RRP` String,
     `supplier` String,
     `date_of_sale` String,
-    `raw_wkly_data.date_of_sale_casted_for_partition` DateTime,
     `date_of_sale_casted_for_partition` DateTime
 )
 ENGINE = MergeTree
