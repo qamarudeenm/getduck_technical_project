@@ -1,4 +1,5 @@
 import pandas as pd
+import hashlib
 from clickhouse_connect import get_client
 from clickhouse_connect.driver.client import Client
 from datetime import datetime, time, timezone
@@ -34,7 +35,7 @@ def setup_database(client: Client):
     print("All schemas initialized successfully.")
 
 def create_staging_table(client: Client):
-    """Creates the raw staging table if it doesn't exist."""
+    """Creates the raw staging table if it doesn't exist, and ensures row_hash column is present."""
     STAGING_SCHEMA = 'getduck_project'
     STAGING_TABLE = 'raw_wkly_data'
     
@@ -57,16 +58,41 @@ def create_staging_table(client: Client):
         `total_sales` String,
         `RRP` String,
         `supplier` String,
-        `date_of_sale` String
-                )
+        `date_of_sale` String,
+        `row_hash` String
+    )
     ENGINE = log
     """
     
     client.command(create_table_query)
+    
+    # Check if row_hash column exists, add it if it doesn't
+    try:
+        # Try to query the row_hash column
+        client.query(f"SELECT row_hash FROM {STAGING_SCHEMA}.{STAGING_TABLE} LIMIT 1")
+        print("Staging table verified with row_hash column.")
+    except Exception as e:
+        if "UNKNOWN_IDENTIFIER" in str(e) or "Unknown expression identifier" in str(e):
+            print("⚠ row_hash column missing. Adding it to existing table...")
+            # Add the row_hash column to the existing table
+            alter_query = f"ALTER TABLE {STAGING_SCHEMA}.{STAGING_TABLE} ADD COLUMN IF NOT EXISTS `row_hash` String"
+            client.command(alter_query)
+            print("✓ row_hash column added successfully.")
+        else:
+            # Re-raise if it's a different error
+            raise
+    
     print("Staging table created successfully.")
 
+def generate_row_hash(row_dict):
+    """Generate MD5 hash from row data for deduplication."""
+    # Create a stable string representation of the row
+    # Sort keys to ensure consistent hash generation
+    row_str = '|'.join(str(row_dict.get(col, '')) for col in sorted(row_dict.keys()))
+    return hashlib.md5(row_str.encode()).hexdigest()
+
 def load_data(client: Client):
-    """Loads the CSV data into the staging table."""
+    """Loads the CSV data into the staging table, avoiding duplicates."""
     STAGING_SCHEMA = 'getduck_project'
     STAGING_TABLE = 'raw_wkly_data'
     CSV_PATH = 'data/getduck_raw_data.csv'
@@ -96,26 +122,38 @@ def load_data(client: Client):
         
     df.columns = [clean_header(col) for col in df.columns]
 
-    def to_datetime_midnight(date_str):
-        # Handle the two date formats seen in the original sample data ('23/09/2025' and '23/09/2025')
-        try:
-            dt = datetime.strptime(date_str, '%Y/%m/%d').date()
-        except ValueError:
-            if date_str and date_str.strip(): # Only print warning for non-empty, invalid strings
-                 print(f"Warning: Unexpected date format encountered: {date_str}")
-            return None
-        return datetime.combine(dt, time(0, 0, 0)) # Set to Midnight
-
-    # df['date_of_sale_casted_for_partition'] = df['date_of_sale'].apply(to_datetime_midnight)
-
-    # Use client.insert_df to load the dataframe
+    # Generate hash for each row for deduplication
+    print("Generating row hashes for deduplication...")
+    df['row_hash'] = df.apply(lambda row: generate_row_hash(row.to_dict()), axis=1)
+    
+    # Get existing hashes from database to avoid duplicates
+    existing_hashes = set()
+    try:
+        print("Checking for existing data in database...")
+        # Only get non-empty hashes (in case column was just added to existing data)
+        result = client.query(f"SELECT DISTINCT row_hash FROM {STAGING_SCHEMA}.{STAGING_TABLE} WHERE row_hash != ''")
+        existing_hashes = {row[0] for row in result.result_rows}
+        print(f"Found {len(existing_hashes)} existing unique rows in database")
+    except Exception as e:
+        print(f"Note: Could not fetch existing hashes (table might be empty): {e}")
+    
+    # Filter to only new rows
+    new_rows_df = df[~df['row_hash'].isin(existing_hashes)]
+    
+    if len(new_rows_df) == 0:
+        print("✓ No new data to load. All rows already exist in the database.")
+        return
+    
+    print(f"Found {len(new_rows_df)} new rows out of {len(df)} total rows in CSV")
+    print(f"Inserting {len(new_rows_df)} new records...")
+    
+    # Use client.insert_df to load only the new dataframe
     client.insert_df(
         table=STAGING_TABLE,
         database=STAGING_SCHEMA,
-        df=df
-
+        df=new_rows_df
     )
-    print("Data loaded successfully.")
+    print(f"✓ Successfully loaded {len(new_rows_df)} new records.")
 
 if __name__ == '__main__':
     try:

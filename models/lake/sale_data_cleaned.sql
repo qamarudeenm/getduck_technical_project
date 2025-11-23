@@ -88,19 +88,15 @@ promo_week_status AS (
 
 final_projection AS (
     SELECT
-        t.*, 
-        p.total_distinct_promo_days,
-        
+        *,         
         -- Set the 'is_promotional_period_sku' flag
         CASE
-            WHEN p.total_distinct_promo_days >= 2 THEN TRUE
+            WHEN total_distinct_promo_days >= 2 THEN TRUE
             ELSE FALSE
         END AS is_promotional_period_sku
         
-    FROM sales_with_metrics t
-    INNER JOIN promo_week_status p
-        ON t.item_code = p.item_code 
-        AND t.week_start_date = p.week_start_date
+    FROM promo_week_status
+
 )
 
 
