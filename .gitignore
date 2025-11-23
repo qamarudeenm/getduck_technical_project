@@ -12,3 +12,4 @@ DOCKER*
 FIX*
 MODEL_*
 ch_data/*
+fix_docker_restart.sh
