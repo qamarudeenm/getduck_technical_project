@@ -5,7 +5,6 @@ This repository contains a modern, production-grade data pipeline designed to tr
 
 The solution uses a ClickHouse-backed Data Lakehouse orchestrated by dbt (Data Build Tool), with final results delivered via a simple FastAPI service for consumption by BI tools, dashboards, and other applications.
 
-> **Note**: Metrics updated on November 23, 2025 after fixing dimension table duplicates that caused metric inflation in earlier versions.
 
 ### 📚 Documentation
 - **[DBT_SQL_DOCUMENTATION.md](./DBT_SQL_DOCUMENTATION.md)** - Comprehensive guide to all SQL transformations (12 sections, 2,000+ lines)
@@ -25,11 +24,6 @@ The solution uses a ClickHouse-backed Data Lakehouse orchestrated by dbt (Data B
   - Top promotional performers with verified metrics
   - Competitive pricing intelligence
   - Actionable recommendations for Bidco
-
-- **[CHANGELOG_v2.0.0.md](./CHANGELOG_v2.0.0.md)** - Version 2.0.0 release notes
-  - Critical bug fix: dimension table duplicates
-  - Metric corrections and verification
-  - dbt test suite implementation
 
 ## 💻 How to Run
 
@@ -181,22 +175,6 @@ docker-compose exec dbt_cli dbt test
 ## 📊 Entity-Relationship (ER) Diagram
 ![ER Diagram](assets/er.png)
 
----
-
-## 📝 Version History
-
-### v2.0.0 (November 23, 2025)
-- **Critical Fix**: Removed dimension table duplicates causing 20-26x metric inflation
-- **Tests Added**: 21 dbt tests to prevent future data quality issues
-- **Metrics Corrected**: All promotional and pricing metrics verified accurate
-- **Documentation**: Updated all reports with corrected values
-
-### v1.0.0 (November 17, 2025)
-- Initial release with 14 dbt models
-- FastAPI endpoints for data consumption
-- Comprehensive documentation
-
----
 
 **Project Status**: ✅ Production Ready  
 **Last Updated**: November 23, 2025  
